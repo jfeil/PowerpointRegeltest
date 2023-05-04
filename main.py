@@ -67,8 +67,8 @@ def create_presentation(input_template: pathlib.Path,
     if not str(output).endswith(".pptx"):
         print("The output path is not a .pptx file...")
         raise typer.Exit(code=1)
-    if not str(question_input).endswith(".xlsx"):
-        print("The question template is not a .xlsx file...")
+    if not str(question_input).endswith(".csv"):
+        print("The question template is not a .csv file...")
         raise typer.Exit(code=1)
 
     if not input_template.exists():
@@ -79,11 +79,10 @@ def create_presentation(input_template: pathlib.Path,
         print("The question template does not exist...")
         raise typer.Exit(code=1)
 
-
-    db = xl.readxl(question_input)
-    selected_table = db.ws_names[0]
-    for row in db.ws(ws=selected_table).rows:
-        input_data += [Question(row[0], row[1])]
+    with open(question_input, 'r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            input_data += [Question(row[0], row[1])]
 
     pairs_a, pairs_b = match_questions(input_data)
     prs = pptx.Presentation(input_template)
